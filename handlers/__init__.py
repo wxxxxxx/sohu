@@ -33,6 +33,7 @@ class BaseHandler(RequestHandler):
         else:
             rt = {'code' : 500, 'info' : 'server error'}
             self.set_status(500)
+        raise
         #err = str(traceback.format_exc())
         self.set_status(400)
         self.j_write(rt)
