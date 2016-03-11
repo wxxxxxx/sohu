@@ -40,8 +40,8 @@ class BaseHandler(RequestHandler):
         self.finish() 
  
 
-from uploader import Uploader
+from files import Uploader, Downloader
 from user import Login
-__all__ = ("BaseHandler", "receiver.Uploader", "user.Login")
+__all__ = ("BaseHandler", "Uploader", "Downloader"  "user.Login")
 
 

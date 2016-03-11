@@ -26,7 +26,8 @@ settings = {
 
 
 application = tornado.web.Application([
-    (r'/upload/([0-9-a-zA_Z]+)', handlers.Uploader),
+    (r'/file/upload/([0-9-a-zA_Z]+)', handlers.Uploader),
+    (r'/file/download/([0-9-a-zA_Z]+)', handlers.Downloader),
 #    (r'/login', handlers.Login),
 ],**settings)
 
