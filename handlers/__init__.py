@@ -24,6 +24,12 @@ class BaseHandler(RequestHandler):
        else:
           rt = json.dumps(val)
        self.write(rt)
+     
+    def summary(self):
+        # logger 的时候写入
+        return "" 
+    def md5_val(self, val):
+        pass 
 
     def log_exception(self, typ, value, tb):
         err = str(traceback.format_exc())
@@ -33,7 +39,7 @@ class BaseHandler(RequestHandler):
         else:
             rt = {'code' : 500, 'info' : 'server error'}
             self.set_status(500)
-        raise
+       # raise
         #err = str(traceback.format_exc())
         self.set_status(400)
         self.j_write(rt)

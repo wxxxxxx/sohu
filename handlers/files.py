@@ -45,9 +45,10 @@ class Uploader(BaseHandler):
             for idx in xrange(len(old_expectations)):
                 e = old_expectations[idx]
                 if e in files:
-                     expectations = old_expectations[:idx] + old_expectations[idx+1:]
-                     continue
+                    expectations = old_expectations[:idx] + old_expectations[idx+1:]
+                    continue
                 if l[0] > l[1]: # 文件名不对
+                    expectations = old_expectations[:idx] + old_expectations[idx+1:]
                     # loggger.error("file:%s中的文件不对：%s"%(name, e))
                     break 
                 if e[0] <= l[0] and l[1] <= e[1]:
@@ -94,18 +95,17 @@ class Uploader(BaseHandler):
         expectations = r.smembers(k_expectations)
         processings = r.hgetall(k_processings)
         expectations = sorted(expectations)
+        # 万一(processing, exceptions 太长)轮询太长了，链接会断开的, 可能吗? 可能的话封装redis.operstor
         for e2, processing in processings.items(): # 先传过期的
             if time.time() - float(processing) > TIME_UPLOADER_WAITING:  
                 start, end = map(int, e2.split("-"))
                 rt = {"code":0, "expectation": [start, end] }
-                r.hset(k_processings, e2, time.time()) 
+                r.hset(k_processings, e2, time.time())
                 r.expire(k_processings, TIMME_UPLOADER_PROCESSING) #  
                 break  
         else: #上传中的文件块没有过期的
             for e1 in expectations:
-                if e1 in processings.keys():
-                    continue # e1 在上传中 
-                else:
+                if e1 not in processings.keys(): # 跳过上传中的
                     start, end = map(int, e1.split("-"))
                     if end-start > MAX_UPLOADER_SIZE: # 该块太大了， 切割下
                         idx = expectations.index(e1)
@@ -135,7 +135,7 @@ class Uploader(BaseHandler):
                     # err = "%s, 是否存在， 数据中不存在" % (name)
                     #logger.error(err) 
                     rt = {"code":-1, "msg":"请先创建资源"}
-                elif f[1] == 100:
+                elif f[1] == 100: # 这里会有一次小的高并发， 因为客户端是多线程并发上传的(暂不处理)
                     r.delete(k_expectations)
                     r.delete(k_processings)
                 else:# 没上传完
